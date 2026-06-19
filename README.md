@@ -4,27 +4,8 @@ Reusable OpenTofu module: private S3 bucket + CloudFront (OAC) + ACM
 cert + Route 53 records. The site bucket stays private; only the
 distribution can read it.
 
-## Inputs
-
-| Name                | Type           | Required | Default      |
-|---------------------|----------------|----------|--------------|
-| `domains`           | `list(string)` | yes      | —            |
-| `route53_zone_name` | `string`       | yes      | —            |
-| `bucket_name`       | `string`       | no       | `domains[0]` |
-| `root_object`       | `string`       | no       | `index.html` |
-| `price_class`       | `string`       | no       | `PriceClass_100` |
-| `tags`              | `map(string)`  | no       | `{}`         |
-
-`domains[0]` is the primary; the rest become both subject-alternative
-names on the cert and additional aliases on the distribution. The
-Route 53 zone identified by `route53_zone_name` must already exist
-and own DNS for every entry in `domains`.
-
-## Provider requirements
-
-The caller must configure an `aws.us_east_1` provider alias (ACM
-hard-requires CloudFront certs in us-east-1) and pass both providers
-to the module.
+Inputs and outputs are documented inline — see `variables.tf` and
+`outputs.tf`.
 
 ## Usage
 
@@ -41,7 +22,7 @@ provider "aws" {
 }
 
 module "site" {
-  source = "../../modules/static-site"
+  source = "git::https://github.com/teranos/s3-r53-acm-cf.git?ref=v0.1.1"
 
   providers = {
     aws           = aws
@@ -53,17 +34,6 @@ module "site" {
   root_object       = "index.html"
 }
 ```
-
-## Outputs
-
-| Name                       | Description |
-|----------------------------|-------------|
-| `bucket_name`              | Bucket id; sync deploys here. |
-| `bucket_arn`               | For downstream IAM. |
-| `distribution_id`          | For `aws cloudfront create-invalidation`. |
-| `distribution_arn`         | For IAM resource-level permissions. |
-| `distribution_domain_name` | The `d1234.cloudfront.net` hostname. |
-| `urls`                     | Public HTTPS URLs. |
 
 ## Deploying content
 
