@@ -76,13 +76,3 @@ aws cloudfront create-invalidation \
   --distribution-id $(tofu output -raw distribution_id) \
   --paths '/*'
 ```
-
-## What's intentionally not here
-
-- No GitHub Actions OIDC role / deploy IAM. That belongs in the
-  caller, scoped to the caller's repo.
-- No bucket versioning, lifecycle, or replication.
-- No custom cache behaviors or path-based routing.
-- No WAF.
-
-Add any of these in the caller if a project needs them.
