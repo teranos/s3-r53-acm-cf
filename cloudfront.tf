@@ -21,9 +21,20 @@ resource "aws_cloudfront_distribution" "site" {
     allowed_methods = ["GET", "HEAD"]
     cached_methods  = ["GET", "HEAD"]
 
-    cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.caching_optimized.id
+    response_headers_policy_id = var.response_headers_policy_id
 
     compress = true
+  }
+
+  dynamic "custom_error_response" {
+    for_each = var.custom_error_responses
+    content {
+      error_code            = custom_error_response.value.error_code
+      response_code         = try(custom_error_response.value.response_code, null)
+      response_page_path    = try(custom_error_response.value.response_page_path, null)
+      error_caching_min_ttl = try(custom_error_response.value.error_caching_min_ttl, null)
+    }
   }
 
   restrictions {

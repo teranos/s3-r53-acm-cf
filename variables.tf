@@ -36,3 +36,20 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "response_headers_policy_id" {
+  description = "Optional CloudFront response-headers policy attached to the default cache behavior. Use to add HSTS, CSP, X-Frame-Options, etc. Caller defines the policy and passes the id."
+  type        = string
+  default     = null
+}
+
+variable "custom_error_responses" {
+  description = "Optional custom error responses on the distribution (e.g. map 403/404 to /404.html). Each entry mirrors the CloudFront resource block; nullable fields are skipped when omitted."
+  type = list(object({
+    error_code            = number
+    response_code         = optional(number)
+    response_page_path    = optional(string)
+    error_caching_min_ttl = optional(number)
+  }))
+  default = []
+}
