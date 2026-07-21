@@ -43,6 +43,12 @@ variable "response_headers_policy_id" {
   default     = null
 }
 
+variable "viewer_request_function_arn" {
+  description = "Optional CloudFront Function ARN attached to the default cache behavior on viewer-request. Use for URI rewrites (e.g. per-prefix SPA fallback) or KVS-backed lookups. Caller creates the function and passes the ARN."
+  type        = string
+  default     = null
+}
+
 variable "custom_error_responses" {
   description = "Optional custom error responses on the distribution (e.g. map 403/404 to /404.html). Each entry mirrors the CloudFront resource block; nullable fields are skipped when omitted."
   type = list(object({

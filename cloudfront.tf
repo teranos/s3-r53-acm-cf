@@ -25,6 +25,14 @@ resource "aws_cloudfront_distribution" "site" {
     response_headers_policy_id = var.response_headers_policy_id
 
     compress = true
+
+    dynamic "function_association" {
+      for_each = var.viewer_request_function_arn == null ? [] : [1]
+      content {
+        event_type   = "viewer-request"
+        function_arn = var.viewer_request_function_arn
+      }
+    }
   }
 
   dynamic "custom_error_response" {
