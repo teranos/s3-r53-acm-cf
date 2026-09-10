@@ -49,6 +49,15 @@ variable "viewer_request_function_arn" {
   default     = null
 }
 
+variable "proxied_paths" {
+  description = "Path patterns served from a host other than the bucket, so they are same-origin with the site. Each entry names the pattern and the origin host. Uncached: an origin behind one of these answers per request."
+  type = list(object({
+    pattern = string
+    host    = string
+  }))
+  default = []
+}
+
 variable "custom_error_responses" {
   description = "Optional custom error responses on the distribution (e.g. map 403/404 to /404.html). Each entry mirrors the CloudFront resource block; nullable fields are skipped when omitted."
   type = list(object({

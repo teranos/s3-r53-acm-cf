@@ -14,6 +14,39 @@ resource "aws_cloudfront_distribution" "site" {
     origin_access_control_id = aws_cloudfront_origin_access_control.site.id
   }
 
+  dynamic "origin" {
+    for_each = toset([for p in var.proxied_paths : p.host])
+    content {
+      domain_name = origin.value
+      origin_id   = "proxy-${replace(origin.value, ".", "-")}"
+
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
+  }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = var.proxied_paths
+    content {
+      path_pattern           = ordered_cache_behavior.value.pattern
+      target_origin_id       = "proxy-${replace(ordered_cache_behavior.value.host, ".", "-")}"
+      viewer_protocol_policy = "redirect-to-https"
+
+      allowed_methods = ["GET", "HEAD"]
+      cached_methods  = ["GET", "HEAD"]
+
+      cache_policy_id            = data.aws_cloudfront_cache_policy.caching_disabled.id
+      origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.all_viewer_except_host.id
+      response_headers_policy_id = var.response_headers_policy_id
+
+      compress = true
+    }
+  }
+
   default_cache_behavior {
     target_origin_id       = "s3-${local.resource_id_base}"
     viewer_protocol_policy = "redirect-to-https"
